@@ -1,0 +1,28 @@
+{
+  "total_rows": 598512,
+  "unique_segments": 24938,
+  "expected_rows": 598512,
+  "is_complete_grid": true,
+  "missing_values": {
+    "segment_id": 0,
+    "new_segment_id": 0,
+    "street_name": 0,
+    "speed_limit": 0,
+    "frc": 0,
+    "distance": 0,
+    "date": 0,
+    "hour": 0,
+    "probe_count": 0,
+    "longitude": 0,
+    "latitude": 0
+  },
+  "duplicate_records": 0,
+  "zero_probe_count": 48256,
+  "zero_probe_percentage": 8.06,
+  "outliers_3iqr_count": 27369,
+  "outliers_3iqr_pct": 4.57,
+  "max_probe_count": 2223,
+  "mean_probe_count": 110.46,
+  "median_probe_count": 38.0,
+  "valid_coords_pct": 100.0
+}

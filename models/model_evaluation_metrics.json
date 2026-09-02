@@ -1,0 +1,50 @@
+{
+  "Naive Lag-1 Persistence": {
+    "test_metrics": {
+      "MAE": 26.4178,
+      "RMSE": 51.997,
+      "R2": 0.9349
+    },
+    "training_time_sec": 0.0
+  },
+  "Naive Lag-24 Seasonal Persistence": {
+    "test_metrics": {
+      "MAE": 24.9289,
+      "RMSE": 54.9575,
+      "R2": 0.9272
+    },
+    "training_time_sec": 0.0
+  },
+  "Ordinary Linear Regression (OLS)": {
+    "test_metrics": {
+      "MAE": 21.8391,
+      "RMSE": 40.7394,
+      "R2": 0.96
+    },
+    "training_time_sec": 3.15
+  },
+  "Ridge Regression (L2)": {
+    "test_metrics": {
+      "MAE": 21.8391,
+      "RMSE": 40.7393,
+      "R2": 0.96
+    },
+    "training_time_sec": 3.31
+  },
+  "Random Forest Regressor": {
+    "test_metrics": {
+      "MAE": 17.8112,
+      "RMSE": 36.2533,
+      "R2": 0.9683
+    },
+    "training_time_sec": 118.79
+  },
+  "XGBoost Regressor": {
+    "test_metrics": {
+      "MAE": 18.3959,
+      "RMSE": 38.3657,
+      "R2": 0.9645
+    },
+    "training_time_sec": 111.55
+  }
+}

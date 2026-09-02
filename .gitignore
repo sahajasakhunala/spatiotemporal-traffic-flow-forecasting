@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+data/raw/
+data/processed/
+models/*.joblib
+*.parquet
+.vscode/
+.idea/
+
