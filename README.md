@@ -83,40 +83,33 @@ The project utilizes the **New Delhi Traffic Probe Count & Analytics Dataset (20
 
 ```mermaid
 flowchart TD
-    subgraph Ingestion [1. Data Ingestion & Storage]
-        A[20 Daily GeoJSON Files<br/>Aug 11-30, 2024] --> B[Incremental Parser<br/>data_ingestion.py]
-        B --> C[(Partitioned Parquet Storage<br/>data/processed/date=YYYY-MM-DD/)]
-    end
+    A["Raw GeoJSON Traffic Data"] --> B["Incremental Data Ingestion"]
+    B --> C["Data Quality Validation"]
+    C --> D["Partitioned Parquet Storage"]
+    D --> E["Feature Engineering"]
+    E --> F["Timestamp-Aware Lag Construction"]
+    F --> G["Leakage-Free Segment Statistics"]
+    G --> H["Chronological Train Test Split"]
 
-    subgraph Quality [2. Quality & Validation]
-        C --> D[Data Quality Audit<br/>data_quality.py]
-        D --> E[10-Point Visual EDA<br/>eda.py]
-    end
+    H --> I["Six Model Benchmark"]
 
-    subgraph FeaturePipeline [3. Feature Engineering & Anti-Leakage]
-        E --> F[Temporal & Road Features<br/>Cyclical Sin/Cos, Rush Hours, FRC]
-        F --> G[Timestamp-Aware Lags<br/>lag_1, lag_2, lag_3, lag_24]
-        G --> H[Chronological Split<br/>Train: Aug 11-26 | Test: Aug 27-30]
-        H --> I[Segment Historical Statistics<br/>Computed strictly on Training Split]
-    end
+    I --> J["Naive Lag-1 Persistence"]
+    I --> K["Naive Lag-24 Persistence"]
+    I --> L["Ordinary Least Squares"]
+    I --> M["Ridge Regression"]
+    I --> N["Random Forest"]
+    I --> O["XGBoost"]
 
-    subgraph Modeling [4. 6-Model Benchmark Suite]
-        I --> J1[Naive Lag-1 Persistence]
-        I --> J2[Naive Lag-24 Seasonal]
-        I --> J3[Ordinary Least Squares OLS]
-        I --> J4[Ridge Regression L2]
-        I --> J5[Random Forest Regressor]
-        I --> J6[XGBoost Regressor]
-    end
+    J --> P["Empirical Evaluation"]
+    K --> P
+    L --> P
+    M --> P
+    N --> P
+    O --> P
 
-    subgraph Evaluation [5. Evaluation & Serving]
-        J1 & J2 & J3 & J4 & J5 & J6 --> K[Empirical Evaluation<br/>MAE, RMSE, R2, Diagnostics]
-        K --> L[Model Selection: Random Forest<br/>Saved to models/]
-        L --> M[Inference Engine<br/>prediction.py]
-        M --> N[Flask & Folium Dashboard<br/>dashboard/app.py]
-        O[Global Metrics & Weekday Stats] --> P[Macro Congestion Analytics<br/>congestion_analysis.py]
-        P --> N
-    end
+    P --> Q["Best Model: Random Forest"]
+    Q --> R["Inference Engine"]
+    R --> S["Flask and Folium Dashboard"]
 ```
 
 ---
