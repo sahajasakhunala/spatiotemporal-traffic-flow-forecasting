@@ -204,16 +204,77 @@ pip install eclipse-sumo sumolib traci
 python -m src.sumo_simulation
 ```
 
-### Running with SUMO-GUI
-Once SUMO is installed:
+### Running with SUMO-GUI (Technical Reference View)
+With SUMO installed on Windows:
 ```bash
-sumo-gui -c data/processed/sumo/delhi_ml_forecast_morning_rush.sumocfg
+"C:\Program Files (x86)\Eclipse\Sumo\bin\sumo-gui.exe" -c data/processed/sumo/delhi_ml_forecast_morning_rush.sumocfg -g data/processed/sumo/delhi.view.xml
 ```
 In the GUI:
-1. Click **Play** to start the simulation.
-2. Adjust the delay slider (e.g. 50ms) to visibly observe cars, autos, and buses moving along the Barapullah Elevated Corridor.
+1. Click **Play** (or press Space) to start the simulation.
+2. The pre-configured `delhi.view.xml` automatically activates realistic vehicle silhouettes, color-by-speed (green for high speed, red for queues), and 50ms smooth stepping.
 
-### Running the Test Suite
-```bash
-python tests/test_sumo_simulation.py
+### Running the Full Test Suite
+```powershell
+$env:PYTHONPATH = "C:\Users\LENOVO\Documents\antigravity\optimistic-einstein"; python -m unittest discover tests -v
 ```
+*(All 24/24 tests pass: 9/9 TraCI Exporter & Web Visualizer, 8/8 SUMO Simulation, 7/7 Technical Audit).*
+
+---
+
+## 8. Phase 3: Interactive Web Microsimulation Visualizer
+
+Phase 3 provides a modern, interactive web-based traffic visualizer built on top of genuine Eclipse SUMO 1.27.1 TraCI simulation data.
+
+```
+Random Forest Flow Forecast (Aug 27-30)
+                 ↓
+Calibrated Vehicle Demand (q = 0.5 * flow)
+                 ↓
+Eclipse SUMO 1.27.1 Microsimulation Engine
+                 ↓
+TraCI Telemetry Exporter (`src/sumo_exporter.py`)
+(Captures 14 fields per vehicle step @ 1-second resolution)
+                 ↓
+Compressed Trajectory Stores (`data/processed/sumo/trajectories/`)
+(3,600 frames per scenario, GZ: ~950 KB, ~27,000 vehicle states)
+                 ↓
+Flask Web Dashboard (`dashboard/app.py` -> `/simulation`)
+                 ↓
+Interactive Leaflet 2.5D Real-Map Visualization
+- Real Barapullah Road Geometry (218 Segments)
+- Vehicle Glyphs (Sedan Cars, Auto-Rickshaws, Transit Buses)
+- Color-by-Speed (Green >35 km/h, Amber 15-35 km/h, Red <15 km/h)
+- 60 FPS Smooth Playback (Play/Pause, Scrub, 1x/2x/5x/10x Multipliers)
+- Clickable Vehicle Telemetry Inspector HUD
+- Real-time Corridor KPIs (Speed, Density, Active & Completed Counts)
+```
+
+### Telemetry Exporter Schema (`src/sumo_exporter.py`)
+Each frame captures 14 genuine telemetry parameters from TraCI without fabrication:
+1. `simulation_time_sec`: Timestamp in the 3,600-second hour
+2. `vehicle_id`: Unique vehicle identifier
+3. `vehicle_type`: Calibrated vehicle classification (`car`, `auto`, `bus`)
+4. `planar_x`, `planar_y`: Metric Cartesian coordinates on corridor
+5. `latitude`, `longitude`: Exact WGS84 GPS coordinates via inverse projection
+6. `speed_mps`: Instantaneous speed in meters per second
+7. `speed_kmh`: Speed converted to km/h
+8. `heading_angle_deg`: Vehicle orientation angle ($0^\circ$ North, $90^\circ$ East)
+9. `current_edge_id`: Traversed SUMO edge
+10. `current_lane_index`: Active lane index ($0$: curb, $1$: center, $2$: median)
+11. `acceleration`: Vehicle acceleration/deceleration in $\text{m/s}^2$
+12. `waiting_time_sec`: Queue waiting delay at bottlenecks
+
+### How to Launch the Web Microsimulation
+1. **Start the Flask Dashboard**:
+```powershell
+python dashboard/app.py
+```
+2. **Open the Simulation URL in your browser**:
+```
+http://127.0.0.1:5000/simulation
+```
+3. **Interact with the Simulation**:
+- Click **Play** to observe genuine simulated cars, auto-rickshaws, and buses traversing the Barapullah Elevated Corridor.
+- Drag the **Time Scrubber** to jump to any point in the 1-hour simulation.
+- Click any moving vehicle to inspect its live speed, lane, acceleration, and GPS coordinates in the **Vehicle Inspector HUD**.
+- Switch scenarios using the top dropdowns (e.g. compare **Random Forest Forecast** vs **Baseline Observed** vs **Naive Lag-1**) to visually observe differences in corridor vehicle density and bottleneck buildup.

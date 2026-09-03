@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barapullah Corridor Traffic Microsimulation | SUMO TraCI Engine</title>
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Simulation Custom CSS -->
+    <link rel="stylesheet" href="/static/css/simulation.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="sim-header">
+        <div class="header-left">
+            <a href="/" class="nav-back-btn">← Back to Prediction Dashboard</a>
+            <div class="title-group">
+                <h1>Barapullah Elevated Corridor Microsimulation</h1>
+                <span class="engine-badge">Engine: Eclipse SUMO 1.27.1 / TraCI</span>
+                <span class="corridor-badge">218 Segments · 178 Junctions · 1.54 km Route</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="scenario-selector-group">
+                <label for="scenarioSelect">Model Scenario:</label>
+                <select id="scenarioSelect" class="sim-select">
+                    <option value="ml_forecast" selected>Random Forest Forecast (ML)</option>
+                    <option value="baseline">Baseline (Observed Probe Count)</option>
+                    <option value="naive_persistence">Naive Lag-1 Persistence</option>
+                </select>
+            </div>
+            <div class="scenario-selector-group">
+                <label for="periodSelect">Traffic Period:</label>
+                <select id="periodSelect" class="sim-select">
+                    <option value="morning_rush" selected>Morning Rush (08:00 - 10:00)</option>
+                    <option value="evening_rush">Evening Rush (17:00 - 20:00)</option>
+                    <option value="off_peak">Off-Peak (13:00 - 15:00)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="sim-workspace">
+        <!-- Interactive Map Container -->
+        <div id="simMap" class="sim-map"></div>
+
+        <!-- Floating KPI Dashboard Overlay -->
+        <div class="kpi-overlay">
+            <div class="kpi-card">
+                <span class="kpi-label">Simulation Time</span>
+                <span class="kpi-value time-val" id="kpiSimTime">00:00:00</span>
+                <span class="kpi-sub" id="kpiStep">Step: 0s / 3600s</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Active Vehicles</span>
+                <span class="kpi-value" id="kpiActiveVehs">0</span>
+                <span class="kpi-sub" id="kpiCompletedVehs">Completed: 0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Mean Speed</span>
+                <span class="kpi-value highlight-green" id="kpiMeanSpeed">0.0 km/h</span>
+                <span class="kpi-sub">Corridor Flow Speed</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Corridor Density</span>
+                <span class="kpi-value" id="kpiDensity">0.0 veh/km</span>
+                <span class="kpi-sub" id="kpiDemandRate">Demand: 200 veh/h</span>
+            </div>
+        </div>
+
+        <!-- Vehicle Inspector HUD (Collapsible) -->
+        <div id="vehicleInspector" class="inspector-card hidden">
+            <div class="inspector-header">
+                <h3>Vehicle Telemetry Inspector</h3>
+                <button id="closeInspectorBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="inspector-body">
+                <div class="inspector-row">
+                    <span class="label">Vehicle ID:</span>
+                    <span class="val mono" id="inspId">--</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">Type:</span>
+                    <span class="val badge" id="inspType">--</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">Speed:</span>
+                    <span class="val highlight" id="inspSpeed">-- km/h</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">Heading:</span>
+                    <span class="val" id="inspHeading">--°</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">Current Edge:</span>
+                    <span class="val mono" id="inspEdge">--</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">Lane Index:</span>
+                    <span class="val" id="inspLane">--</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">Acceleration:</span>
+                    <span class="val" id="inspAccel">-- m/s²</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">Waiting Time:</span>
+                    <span class="val" id="inspWait">-- s</span>
+                </div>
+                <div class="inspector-row">
+                    <span class="label">GPS Coordinates:</span>
+                    <span class="val mono" id="inspGps">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Legend & Layer Guide -->
+        <div class="map-legend">
+            <div class="legend-section">
+                <h4>Vehicle Classes</h4>
+                <div class="legend-item"><span class="legend-glyph car-glyph"></span> Passenger Car (70%)</div>
+                <div class="legend-item"><span class="legend-glyph auto-glyph"></span> Auto-Rickshaw (20%)</div>
+                <div class="legend-item"><span class="legend-glyph bus-glyph"></span> City Transit Bus (10%)</div>
+            </div>
+            <div class="legend-section">
+                <h4>Speed Dynamics</h4>
+                <div class="legend-item"><span class="color-dot dot-green"></span> Free Flow (>35 km/h)</div>
+                <div class="legend-item"><span class="color-dot dot-yellow"></span> Moderate (15-35 km/h)</div>
+                <div class="legend-item"><span class="color-dot dot-red"></span> Queued / Slow (&lt;15 km/h)</div>
+            </div>
+        </div>
+
+        <!-- Playback Controller Bar -->
+        <div class="playback-bar">
+            <div class="playback-controls">
+                <button id="btnPlayPause" class="btn-play">
+                    <span id="playIcon">▶</span>
+                    <span id="playText">Play</span>
+                </button>
+                <button id="btnRestart" class="btn-ctrl" title="Rewind to start">⏮ Restart</button>
+                <button id="btnStepBack" class="btn-ctrl" title="Step back 5 seconds">-5s</button>
+                <button id="btnStepFwd" class="btn-ctrl" title="Step forward 5 seconds">+5s</button>
+                
+                <div class="speed-selector">
+                    <span class="speed-label">Speed:</span>
+                    <button class="speed-btn" data-speed="1">1x</button>
+                    <button class="speed-btn active" data-speed="2">2x</button>
+                    <button class="speed-btn" data-speed="5">5x</button>
+                    <button class="speed-btn" data-speed="10">10x</button>
+                </div>
+            </div>
+
+            <!-- Timeline Scrubber -->
+            <div class="timeline-container">
+                <span class="time-label" id="timelineCurrent">00:00</span>
+                <input type="range" id="timeSlider" min="0" max="3600" value="0" step="1" class="timeline-slider">
+                <span class="time-label" id="timelineMax">60:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Simulation Controller Script -->
+    <script src="/static/js/simulation.js"></script>
+</body>
+</html>

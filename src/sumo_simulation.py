@@ -169,6 +169,22 @@ def project_wgs84_to_cartesian(
     return round(x, 2), round(y, 2)
 
 
+def cartesian_to_wgs84(
+    x: float,
+    y: float,
+    origin_lon: float = PROJECTION_CENTER_LON,
+    origin_lat: float = PROJECTION_CENTER_LAT,
+) -> Tuple[float, float]:
+    """
+    Convert planar metric (x, y) coordinates back into WGS84 GPS (longitude, latitude)
+    using the exact inverse of the equirectangular projection.
+    """
+    cos_lat = math.cos(math.radians(origin_lat))
+    lon = origin_lon + (x / (EARTH_RADIUS_METERS * cos_lat)) * (180.0 / math.pi)
+    lat = origin_lat + (y / EARTH_RADIUS_METERS) * (180.0 / math.pi)
+    return round(lon, 7), round(lat, 7)
+
+
 # ---------------------------------------------------------------------------
 # 3. Real Road Network Extraction & SUMO Network Builder
 # ---------------------------------------------------------------------------

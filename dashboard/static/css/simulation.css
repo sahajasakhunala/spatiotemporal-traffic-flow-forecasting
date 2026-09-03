@@ -1,0 +1,497 @@
+/* ==========================================================================
+   Barapullah Corridor Traffic Microsimulation Stylesheet
+   Dark Glassmorphic Theme with High-Contrast Road & Vehicle Glyphs
+   ========================================================================== */
+
+:root {
+    --bg-dark: #0d1117;
+    --card-bg: rgba(22, 27, 34, 0.88);
+    --card-border: rgba(240, 246, 252, 0.12);
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --accent-blue: #58a6ff;
+    --accent-cyan: #39c5cf;
+    --accent-green: #3fb950;
+    --accent-amber: #d29922;
+    --accent-red: #f85149;
+    --accent-purple: #bc8cff;
+    --road-frc1: #38434f;
+    --road-frc2: #283038;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.sim-header {
+    height: 64px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 1000;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-back-btn {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.nav-back-btn:hover {
+    background: rgba(88, 166, 255, 0.2);
+}
+
+.title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-group h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.engine-badge {
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(63, 185, 80, 0.15);
+    color: var(--accent-green);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    padding: 3px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.3px;
+}
+
+.corridor-badge {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.scenario-selector-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.sim-select {
+    background: #21262d;
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.sim-select:focus {
+    border-color: var(--accent-blue);
+}
+
+/* Workspace */
+.sim-workspace {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 64px);
+}
+
+.sim-map {
+    width: 100%;
+    height: 100%;
+    background: #111418;
+    z-index: 1;
+}
+
+/* Floating KPI Cards */
+.kpi-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 12px;
+    z-index: 500;
+}
+
+.kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    min-width: 130px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 4px 0 2px;
+}
+
+.kpi-value.time-val {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-cyan);
+}
+
+.kpi-value.highlight-green {
+    color: var(--accent-green);
+}
+
+.kpi-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* Inspector HUD */
+.inspector-card {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 290px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    z-index: 500;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.inspector-card.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+}
+
+.inspector-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.inspector-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: var(--text-primary);
+}
+
+.inspector-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.inspector-row .label {
+    color: var(--text-secondary);
+}
+
+.inspector-row .val {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.inspector-row .val.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+}
+
+.inspector-row .val.badge {
+    background: rgba(88, 166, 255, 0.15);
+    color: var(--accent-blue);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-size: 10px;
+}
+
+.inspector-row .val.highlight {
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+/* Map Legend */
+.map-legend {
+    position: absolute;
+    bottom: 110px;
+    left: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    backdrop-filter: blur(12px);
+    z-index: 500;
+    font-size: 11px;
+    display: flex;
+    gap: 20px;
+}
+
+.legend-section h4 {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
+    margin: 3px 0;
+}
+
+.legend-glyph {
+    display: inline-block;
+    width: 14px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.car-glyph { background: #58a6ff; }
+.auto-glyph { background: #d29922; }
+.bus-glyph { background: #bc8cff; }
+
+.color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.dot-green { background: #3fb950; }
+.dot-yellow { background: #d29922; }
+.dot-red { background: #f85149; }
+
+/* Playback Bottom Bar */
+.playback-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(94%, 920px);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.playback-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-play {
+    background: var(--accent-green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-play:hover {
+    background: #2ea043;
+    transform: translateY(-1px);
+}
+
+.btn-play:active {
+    transform: translateY(0);
+}
+
+.btn-ctrl {
+    background: #21262d;
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-ctrl:hover {
+    background: #30363d;
+    border-color: #8b949e;
+}
+
+.speed-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.speed-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.speed-btn {
+    background: #21262d;
+    color: var(--text-secondary);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.speed-btn:hover {
+    color: var(--text-primary);
+}
+
+.speed-btn.active {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+}
+
+/* Timeline Slider */
+.timeline-container {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.time-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 44px;
+}
+
+.timeline-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #21262d;
+    outline: none;
+    cursor: pointer;
+}
+
+.timeline-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(57, 197, 207, 0.6);
+    transition: transform 0.1s ease;
+}
+
+.timeline-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Vehicle Leaflet SVG Icons */
+.vehicle-marker-icon {
+    background: transparent;
+    border: none;
+    transition: transform 0.1s linear;
+}
+
+.vehicle-svg {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    cursor: pointer;
+}
+
+.vehicle-svg:hover {
+    filter: drop-shadow(0 0 8px #ffffff);
+}

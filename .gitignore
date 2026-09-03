@@ -5,5 +5,7 @@ data/raw/
 data/processed/
 models/*.joblib
 *.parquet
+*.json.gz
+trajectories_*.json
 .vscode/
 .idea/
