@@ -13,11 +13,11 @@ An end-to-end spatial-temporal machine learning forecasting and urban analytics 
 
 ## 1. Overview
 
-The **Intelligent Urban Traffic Flow & Congestion Prediction System** is a production-grade machine learning system designed to forecast road-level traffic dynamics across the New Delhi National Capital Region (NCR). Utilizing 11.97 million hourly traffic-probe records spanning 24,938 unique road segments, the pipeline ingests raw geographic vector data, performs leakage-free spatial-temporal feature engineering, and benchmarks linear, tree, and gradient-boosted models against empirical persistence baselines on an unseen chronological test split.
+The **Intelligent Urban Traffic Flow & Congestion Prediction System** is a production-grade machine learning system designed to forecast road-level traffic dynamics across the New Delhi National Capital Region (NCR). Utilizing 11.97 million hourly traffic-probe records spanning 24,938 unique road segments, the pipeline ingests raw geographic vector data, performs leakage-controlled spatial-temporal feature engineering, and benchmarks linear, tree, and gradient-boosted models against empirical persistence baselines on an unseen chronological test split.
 
 The primary machine learning objective is to forecast the **next-hour traffic probe flow** (`probe_count(t+1)`) for each individual road segment given only information available strictly prior to time `t+1`. In this system, `probeCount` is strictly treated as an empirical traffic-flow proxy (derived from connected GPS mobility and navigation devices) rather than an absolute physical vehicle census count.
 
-To complement road-level machine learning predictions with macro urban context, the system incorporates aggregated city and urban benchmark metrics. This enables comparative congestion pattern analysis across morning and evening rush-hour regimes without fabricating ungrounded road-level congestion labels. The complete workflow is exposed via an interactive Flask and Folium spatial dashboard providing on-demand inference, visual diagnostics, and interactive road corridor exploration.
+To complement road-level machine learning predictions with macro urban context, the system incorporates aggregated city and urban benchmark metrics. This enables comparative congestion pattern analysis across morning and evening rush-hour regimes without fabricating ungrounded road-level congestion labels. The complete workflow is exposed via an interactive Flask and Folium spatial dashboard providing on-demand next-hour forecasting, visual diagnostics, and interactive road corridor exploration.
 
 ---
 
@@ -27,9 +27,9 @@ To complement road-level machine learning predictions with macro urban context, 
 |---|---:|
 | Road segments | 24,938 |
 | Road-segment/hour records | 11,970,240 |
-| Observation period | Aug 1130, 2024 |
-| Training observations (Aug 1126) | 8,977,680 |
-| Test observations (Aug 2730) | 2,394,048 |
+| Observation period | Aug 11 - 30, 2024 |
+| Training observations (Aug 11 - 26) | 8,977,680 |
+| Test observations (Aug 27 - 30) | 2,394,048 |
 | Feature count | 24 |
 | Best model | Random Forest Regressor |
 | Test MAE | 17.8112 |
@@ -37,7 +37,7 @@ To complement road-level machine learning predictions with macro urban context, 
 | Test R | 0.9683 |
 | MAE improvement vs Lag-1 Persistence | 32.6% |
 
-**Key Finding**: Random Forest achieved the top predictive performance on the 4-day unseen chronological test split, reducing Mean Absolute Error by **32.6%** compared to the strong Naive Lag-1 persistence baseline and outperforming both regularized linear models and XGBoost.
+**Key Finding**: Random Forest achieved the top predictive performance on the 4-day unseen chronological test set, reducing Mean Absolute Error by **32.6%** compared to the strong Naive Lag-1 persistence baseline and outperforming both regularized linear models and XGBoost.
 
 ---
 
@@ -51,7 +51,7 @@ The system addresses a rolling one-step-ahead ($t \to t+1$) spatial-temporal for
   - Historical traffic-flow lags (`lag_1`, `lag_2`, `lag_3`, `lag_24`) computed strictly per segment
   - Out-of-sample historical segment statistics (training-split segment mean, standard deviation, 90th percentile, zero-traffic frequency)
 - **Target at time $t+1$**:
-  - `probe_count(t+1)` representing the next-hour traffic flow proxy for that road segment.
+  - `probe_count(t+1)` representing the next-hour traffic probe flow proxy for that road segment.
 - **Prediction Horizon**:
   - Exact one-hour rolling window ($t \to t+1$).
 
@@ -72,7 +72,7 @@ The project utilizes the **New Delhi Traffic Probe Count & Analytics Dataset (20
   - `speedLimit`: Posted speed limit in km/h.
   - `frc`: Functional Road Class (values 1 through 6, ranging from major highways to local residential streets).
   - `distance`: Segment length in meters.
-  - `segmentProbeCounts`: Array of 24 hourly probe counts mapping `timeSet` (225) to hour of day (0:0023:00).
+  - `segmentProbeCounts`: Array of 24 hourly probe counts mapping `timeSet` (2 to 25) to hour of day (0:00 to 23:00).
   - `geometry`: Road vector coordinates used to compute representative centroids.
 - **Cultural and Seasonal Factors**: The dataset period encompasses the monsoon season and three major cultural dates: Independence Day (Aug 15), Rakshabandhan (Aug 19), and Janmashtami (Aug 26).
 - **Storage Note**: Due to GitHub file size limits, the raw multi-gigabyte GeoJSON files are excluded via `.gitignore` and converted locally into partitioned Parquet datasets.
@@ -120,7 +120,7 @@ To process 11.97 million rows without memory exhaustion, the pipeline executes t
 
 1. **Incremental Daily Ingestion**: Daily GeoJSON files are ingested sequentially, flattening nested `segmentProbeCounts` arrays into tabular segment-by-hour rows.
 2. **Timestamp Normalization**: Maps dataset `timeSet` indices (2 to 25) directly to 24-hour diurnal timestamps (0:00 to 23:00) with UTC/local alignment.
-3. **Grid Completeness Verification**: Confirms every daily partition contains exactly 598,512 records ($24,938\text{ segments} \times 24\text{ hours}$), ensuring an unbroken temporal grid.
+3. **Grid Completeness Verification**: Confirms every daily partition contains exactly 598,512 records (24,938 segments * 24 hours), ensuring an unbroken temporal grid.
 4. **Data Quality Audit**: Audits missing values (0 found), duplicate segment-hours (0 found), coordinate completeness (100%), and zero-traffic proportions (8.06% legitimate low-volume roads).
 5. **Partitioned Parquet Generation**: Writes snappy-compressed columnar Parquet files partitioned by `date=YYYY-MM-DD/` into `data/processed/`.
 6. **Memory Efficiency**: Eliminates multi-gigabyte in-memory DataFrame overhead, enabling fast downstream loads and reproducible partition querying.
@@ -132,12 +132,12 @@ To process 11.97 million rows without memory exhaustion, the pipeline executes t
 The feature vector comprises 24 standardized inputs structured across four categories:
 
 ### Temporal Features
-- `hour`: Hour of day (023)
+- `hour`: Hour of day (0 to 23)
 - `day_of_week`: Day index (0=Monday, 6=Sunday)
-- `day_of_month`: Day of month (1130)
+- `day_of_month`: Day of month (11 to 30)
 - `is_weekend`: Binary flag for Saturday and Sunday
-- `is_morning_rush`: Binary indicator for morning peak hours (8:0010:00 AM)
-- `is_evening_rush`: Binary indicator for evening peak hours (5:008:00 PM)
+- `is_morning_rush`: Binary indicator for morning peak hours (8:00 to 10:00 AM)
+- `is_evening_rush`: Binary indicator for evening peak hours (5:00 to 8:00 PM)
 - `is_rush_hour`: Combined peak traffic flag
 - `is_festival`: Indicator for major holiday dates (Independence Day, Rakshabandhan, Janmashtami)
 - `hour_sin` / `hour_cos`: Trigonometric cyclical encodings for diurnal cycle continuity
@@ -155,7 +155,7 @@ The feature vector comprises 24 standardized inputs structured across four categ
 - `probe_count_lag_24`: Observed flow at exactly $t - 24\text{ hours}$ (same hour prior day)
 - `probe_count_roll_mean_3h`: Moving average of the immediate prior 3 hours (`lag_1`, `lag_2`, `lag_3`)
 
-*Note on Lag Integrity*: Lags are generated using an explicit `(segment_id, datetime)` grid sort. Unit tests verify exact second-level offsets ($\Delta t = 3600\text{s}, 7200\text{s}, 86400\text{s}$) with zero temporal drift.
+*Note on Lag Integrity*: Lags are generated using an explicit `(segment_id, datetime)` grid sort. Technical validation confirmed that the implemented lag construction and segment historical statistics are aligned with the chronological evaluation design, ensuring exact second-level offsets ($\Delta t = 3600\text{s}, 7200\text{s}, 86400\text{s}$).
 
 ### Segment Historical Priors (Target Encoding)
 - `segment_mean_traffic`: Mean historical flow per segment
@@ -163,14 +163,14 @@ The feature vector comprises 24 standardized inputs structured across four categ
 - `segment_p90_traffic`: 90th percentile traffic volume per segment
 - `segment_zero_freq`: Frequency of zero-flow occurrences per segment
 
-*Anti-Leakage Principle*: Raw numerical `segmentId` values are arbitrary identifiers without ordinal meaning. They are converted into continuous empirical priors computed **strictly on the August 1126 training split** and merged out-of-sample onto the test set.
+*Anti-Leakage Principle*: Raw numerical `segmentId` values are arbitrary identifiers without ordinal meaning. They are converted into continuous empirical priors computed **strictly on the August 11 - 26 training split** and merged out-of-sample onto the test set.
 
 ---
 
 ## 8. Train/Test Strategy
 
-- **Training Split**: August 11, 2024 to August 26, 2024 (16 days  8,977,680 records).
-- **Test Split**: August 27, 2024 to August 30, 2024 (4 days  2,394,048 records).
+- **Training Split**: August 11, 2024 to August 26, 2024 (16 days - 8,977,680 records).
+- **Test Split**: August 27, 2024 to August 30, 2024 (4 days - 2,394,048 records).
 
 Random cross-validation is intentionally avoided because shuffling future traffic observations into training sets causes severe temporal leakage. The chronological partition strictly evaluates model performance on unseen future dates (Tuesday through Friday), evaluating real-world generalization across post-holiday weekday cycles.
 
@@ -185,7 +185,7 @@ Evaluation on the unseen 4-day chronological test split (2,394,048 samples):
 | Naive Lag-1 Persistence | 0.00s | 26.4178 | 51.9970 | 0.9349 | Baseline |
 | Naive Lag-24 Seasonal | 0.00s | 24.9289 | 54.9575 | 0.9272 | -5.6% |
 | Ordinary Linear Regression (OLS) | 3.15s | 21.8391 | 40.7394 | 0.9600 | +17.3% |
-| Ridge Regression (L2) | 3.31s | 21.8391 | 40.7393 | 0.9600 | +17.3% |
+| Ridge Regression (L2-regularized linear regression) | 3.31s | 21.8391 | 40.7393 | 0.9600 | +17.3% |
 | **Random Forest Regressor (Best)** | **118.79s** | **17.8112** | **36.2533** | **0.9683** | **+32.6%** |
 | XGBoost Regressor (Histogram) | 111.55s | 18.3959 | 38.3657 | 0.9645 | +30.4% |
 
@@ -272,50 +272,50 @@ The system includes a responsive Flask and Folium web application for **on-deman
 
 ```
 spatiotemporal-traffic-flow-forecasting/
-├── src/
-│   ├── config.py
-│   ├── data_ingestion.py
-│   ├── data_quality.py
-│   ├── eda.py
-│   ├── feature_engineering.py
-│   ├── model_training.py
-│   ├── model_evaluation.py
-│   ├── congestion_analysis.py
-│   └── prediction.py
-│
-├── dashboard/
-│   ├── app.py
-│   ├── templates/
-│   │   └── index.html
-│   └── static/
-│       ├── css/
-│       └── js/
-│
-├── notebooks/
-│   └── traffic_flow_prediction_pipeline.ipynb
-│
-├── tests/
-│   └── test_technical_audit.py
-│
-├── models/
-│   └── trained model artifacts
-│
-├── visualizations/
-│   └── diagnostic plots
-│
-├── docs/
-│   ├── architecture.md
-│   └── methodology.md
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── run_pipeline.py
-├── requirements.txt
-├── README.md
-├── LICENSE
-└── .gitignore
++-- src/
+   +-- config.py
+   +-- data_ingestion.py
+   +-- data_quality.py
+   +-- eda.py
+   +-- feature_engineering.py
+   +-- model_training.py
+   +-- model_evaluation.py
+   +-- congestion_analysis.py
+   +-- prediction.py
+
++-- dashboard/
+   +-- app.py
+   +-- templates/
+      +-- index.html
+   +-- static/
+       +-- css/
+       +-- js/
+
++-- notebooks/
+   +-- traffic_flow_prediction_pipeline.ipynb
+
++-- tests/
+   +-- test_technical_audit.py
+
++-- models/
+   +-- trained model artifacts
+
++-- visualizations/
+   +-- diagnostic plots
+
++-- docs/
+   +-- architecture.md
+   +-- methodology.md
+
++-- data/
+   +-- raw/
+   +-- processed/
+
++-- run_pipeline.py
++-- requirements.txt
++-- README.md
++-- LICENSE
++-- .gitignore
 ```
 
 ---
