@@ -192,7 +192,7 @@ class TestSumoSimulation(unittest.TestCase):
         self.assertIsNotNone(root_cfg.find("input/route-files"))
 
     def test_08_graceful_simulation_runner(self):
-        """8. Verify simulation runner handles missing binary gracefully with analytical dynamics."""
+        """8. Verify simulation runner handles missing binary gracefully with explicit execution mode."""
         features = extract_corridor_features(self.geojson_file)
         net_info = build_sumo_network(features, SUMO_PROCESSED_DIR)
         sumo_status = check_sumo_installation()
@@ -207,6 +207,12 @@ class TestSumoSimulation(unittest.TestCase):
 
         result = run_sumo_simulation(sumo_status, cfg_file, sc_info, net_info)
         self.assertEqual(result["status"], "COMPLETED")
+        self.assertIn("execution_mode", result)
+        self.assertIn(result["execution_mode"], ["SUMO", "ANALYTICAL_FALLBACK"])
+        self.assertIn("results_source", result)
+        if not sumo_status["installed"]:
+            self.assertEqual(result["execution_mode"], "ANALYTICAL_FALLBACK")
+            self.assertIn("Analytical Fallback", result["results_source"])
         self.assertIn("mean_simulated_speed_kmh", result)
         self.assertIn("mean_density_veh_per_km", result)
         self.assertIn("mean_travel_time_sec", result)
