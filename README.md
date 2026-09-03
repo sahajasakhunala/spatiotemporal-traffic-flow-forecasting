@@ -271,49 +271,51 @@ The system includes a responsive Flask and Folium web application for **on-deman
 ## 13. Project Structure
 
 ```
-intelligent-traffic-prediction/
-
-+-- src/                               # Modular Python source code
-   +-- __init__.py
-   +-- config.py                      # System paths, constants, date configurations
-   +-- data_ingestion.py              # Incremental GeoJSON -> Parquet ingestion
-   +-- data_quality.py                # Completeness, grid, and outlier audit functions
-   +-- eda.py                         # 10-point exploratory data analysis generator
-   +-- feature_engineering.py         # Temporal encodings, timestamp lags, segment priors
-   +-- model_training.py              # 6-model training, evaluation, and plot generators
-   +-- congestion_analysis.py         # Global metrics and weekday heatmap analytics
-   +-- prediction.py                  # In-memory inference engine for dashboard
-
-+-- models/                            # Trained artifacts & metadata (tracked/generated)
-   +-- linear_regression_ols.joblib   # OLS model
-   +-- ridge_regression.joblib        # Ridge L2 model
-   +-- random_forest.joblib           # Random Forest ensemble (top performer)
-   +-- xgboost.joblib                 # XGBoost regressor
-   +-- segment_stats.parquet          # Out-of-sample segment priors
-   +-- model_evaluation_metrics.json  # Benchmark evaluation metrics
-
-+-- dashboard/                         # Flask web application
-   +-- app.py                         # Web server and API endpoints
-   +-- templates/
-      +-- index.html                 # Responsive dashboard UI
-   +-- static/
-       +-- css/style.css              # Dark mode styling
-       +-- js/dashboard.js            # Client-side Chart.js and prediction handlers
-
-+-- visualizations/                    # 16 publication-grade diagnostic plots (.png)
-+-- notebooks/                         # Interactive Jupyter walkthrough
-   +-- traffic_flow_prediction_pipeline.ipynb
-+-- tests/                             # Automated test suite
-   +-- test_technical_audit.py        # 7-point technical verification audit
-+-- docs/                              # Architecture and methodology documentation
-   +-- architecture.md
-   +-- data_quality_report.json
-   +-- methodology.md
-
-+-- requirements.txt                   # Pinned project dependencies
-+-- run_pipeline.py                    # End-to-end pipeline execution runner
-+-- README.md                          # Primary project documentation
-+-- .gitignore                         # Excludes raw data and local cache
+spatiotemporal-traffic-flow-forecasting/
+├── src/
+│   ├── config.py
+│   ├── data_ingestion.py
+│   ├── data_quality.py
+│   ├── eda.py
+│   ├── feature_engineering.py
+│   ├── model_training.py
+│   ├── model_evaluation.py
+│   ├── congestion_analysis.py
+│   └── prediction.py
+│
+├── dashboard/
+│   ├── app.py
+│   ├── templates/
+│   │   └── index.html
+│   └── static/
+│       ├── css/
+│       └── js/
+│
+├── notebooks/
+│   └── traffic_flow_prediction_pipeline.ipynb
+│
+├── tests/
+│   └── test_technical_audit.py
+│
+├── models/
+│   └── trained model artifacts
+│
+├── visualizations/
+│   └── diagnostic plots
+│
+├── docs/
+│   ├── architecture.md
+│   └── methodology.md
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── run_pipeline.py
+├── requirements.txt
+├── README.md
+├── LICENSE
+└── .gitignore
 ```
 
 ---
