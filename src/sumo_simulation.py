@@ -375,6 +375,24 @@ def build_sumo_network(
 
         f.write("</net>\n")
 
+    # If netconvert is installed on the host, compile network through netconvert for 100% valid topology
+    sumo_status = check_sumo_installation()
+    netconvert_exe = sumo_status["binaries"].get("netconvert")
+    if netconvert_exe:
+        cmd_nc = [
+            netconvert_exe,
+            "--node-files", str(nod_file),
+            "--edge-files", str(edg_file),
+            "--output-file", str(net_file),
+            "--proj.plain-geo", "true",
+        ]
+        try:
+            res_nc = subprocess.run(cmd_nc, capture_output=True, text=True, timeout=60)
+            if res_nc.returncode == 0:
+                print(f"  Compiled SUMO network via netconvert: {net_file.name}")
+        except Exception as e:
+            print(f"  Note: netconvert compilation fallback: {e}")
+
     return {
         "junctions": junctions,
         "edges": edges,
@@ -484,18 +502,52 @@ def generate_scenario_routes(
 
     total_veh_demand = calibrate_demand(mean_flow, scale_factor=demand_scale)
 
-    # 3. Partition edges into directional continuous route paths
-    eastbound_edges = [e["edge_id"] for e in edges if e["direction"] == "eastbound"]
-    westbound_edges = [e["edge_id"] for e in edges if e["direction"] == "westbound"]
+    # 3. Partition edges into directional continuous route paths using connection graph
+    net_file = output_file.parent / "delhi_corridor.net.xml"
+    routes = []
+    if net_file.exists():
+        import xml.etree.ElementTree as ET
+        try:
+            tree = ET.parse(net_file)
+            root = tree.getroot()
+            adj = {}
+            for c in root.findall("connection"):
+                f = c.get("from")
+                t = c.get("to")
+                if f and t and not f.startswith(":") and not t.startswith(":"):
+                    adj.setdefault(f, set()).add(t)
 
-    # Select representative mainline sequences
-    route_east = " ".join(eastbound_edges[:min(10, len(eastbound_edges))])
-    route_west = " ".join(westbound_edges[:min(10, len(westbound_edges))])
+            candidate_paths = []
+            for start in adj:
+                path = [start]
+                curr = start
+                while True:
+                    nexts = [x for x in adj.get(curr, set()) if x not in path]
+                    if not nexts:
+                        break
+                    curr = nexts[0]
+                    path.append(curr)
+                if len(path) >= 3:
+                    candidate_paths.append(path)
 
-    routes = [
-        ("route_east", route_east),
-        ("route_west", route_west),
-    ]
+            candidate_paths.sort(key=lambda p: len(p), reverse=True)
+            if len(candidate_paths) >= 2:
+                routes = [
+                    ("route_east", " ".join(candidate_paths[0][:15])),
+                    ("route_west", " ".join(candidate_paths[1][:15])),
+                ]
+        except Exception:
+            pass
+
+    if not routes:
+        eastbound_edges = [e["edge_id"] for e in edges if e["direction"] == "eastbound"]
+        westbound_edges = [e["edge_id"] for e in edges if e["direction"] == "westbound"]
+        route_east = " ".join(eastbound_edges[:min(10, len(eastbound_edges))])
+        route_west = " ".join(westbound_edges[:min(10, len(westbound_edges))])
+        routes = [
+            ("route_east", route_east),
+            ("route_west", route_west),
+        ]
 
     # 4. Generate vehicle departures (inter-arrival spacing)
     vehicles = []
@@ -813,9 +865,14 @@ def generate_sumo_visualizations(
     axes[1].set_ylabel("Traverse Time (seconds)")
     axes[1].bar_label(bars, fmt="%.1fs", padding=3)
 
+    mode_detail = (
+        "Genuine Vehicle Trajectories from tripinfo.xml"
+        if exec_mode == "SUMO"
+        else "SUMO installation pending for live trajectories"
+    )
     fig.suptitle(
         f"Corridor Dynamics: Speed, Density, and Congestion Traversal\n"
-        f"Execution Mode: {exec_mode} (SUMO installation pending for live trajectories)",
+        f"Execution Mode: {exec_mode} ({mode_detail})",
         fontsize=12,
         fontweight="bold",
         y=1.03,
