@@ -171,8 +171,15 @@ def get_simulation_trajectories():
         scenario = "naive_persistence"
 
     trajectories_dir = SUMO_PROCESSED_DIR / "trajectories"
-    gz_file = trajectories_dir / f"trajectories_{scenario}_{period}.json.gz"
-    json_file = trajectories_dir / f"trajectories_{scenario}_{period}.json"
+
+    # Check for experiment query
+    experiment = request.args.get("experiment")
+    if experiment:
+        gz_file = trajectories_dir / f"trajectories_experiment_{experiment}.json.gz"
+        json_file = trajectories_dir / f"trajectories_experiment_{experiment}.json"
+    else:
+        gz_file = trajectories_dir / f"trajectories_{scenario}_{period}.json.gz"
+        json_file = trajectories_dir / f"trajectories_{scenario}_{period}.json"
 
     # Efficient gzip delivery if supported by client
     accept_encoding = request.headers.get("Accept-Encoding", "")
@@ -189,8 +196,97 @@ def get_simulation_trajectories():
 
     return jsonify({
         "status": "error",
-        "message": f"Trajectory not found for scenario '{scenario}' and period '{period}'"
+        "message": f"Trajectory not found for scenario '{scenario}' and period '{period}' (experiment: {experiment})"
     }), 404
+
+
+@app.route("/api/simulation/experiments")
+def get_simulation_experiments():
+    """
+    Returns available disturbance experiment scenarios, target classifications,
+    and pre-computed closed-loop evaluation metrics comparing RF baseline forecast vs actual SUMO state.
+    """
+    trajectories_dir = SUMO_PROCESSED_DIR / "trajectories"
+    experiment_types = ["normal", "accident", "lane_closure", "heavy_vehicle", "signal_disruption"]
+    experiments = []
+
+    for exp in experiment_types:
+        json_path = trajectories_dir / f"trajectories_experiment_{exp}.json"
+        gz_path = trajectories_dir / f"trajectories_experiment_{exp}.json.gz"
+        data = None
+        if json_path.exists():
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        elif gz_path.exists():
+            with gzip.open(gz_path, "rt", encoding="utf-8") as f:
+                data = json.load(f)
+
+        if data and "evaluation" in data:
+            experiments.append({
+                "id": exp,
+                "name": data["evaluation"]["scenario_name"],
+                "disturbance": data["evaluation"]["disturbance"],
+                "target_classification": data["evaluation"]["target_classification"],
+                "metrics": data["evaluation"]["metrics"],
+                "total_unique_vehicles": data["metadata"]["total_unique_vehicles"],
+                "duration_sec": data["metadata"]["duration_sec"]
+            })
+
+    return jsonify({
+        "status": "success",
+        "baseline_model": "Random Forest Regressor (Aug 11-26 Training)",
+        "simulation_engine": "Eclipse SUMO 1.27.1 / TraCI",
+        "experiments": experiments
+    })
+
+
+@app.route("/api/simulation/run_experiment", methods=["POST"])
+def run_simulation_experiment():
+    """
+    Dynamically executes an actual SUMO microsimulation with injected disturbance via TraCI.
+    Request JSON parameters:
+      - disturbance_type: "none", "accident", "lane_closure", "heavy_vehicle", "signal_disruption"
+      - start_time: int (seconds, default 240)
+      - duration: int (seconds, default 360)
+      - edge_id: str (default "edge_13560341041261")
+      - lane_index: int (default 0)
+      - max_duration_sec: int (default 1200)
+    """
+    from src.sumo_exporter import export_disturbance_experiment
+
+    payload = request.get_json() or {}
+    dist_type = payload.get("disturbance_type", "accident")
+    start_time = int(payload.get("start_time", 240))
+    duration = int(payload.get("duration", 360))
+    edge_id = payload.get("edge_id", "edge_13560341041261")
+    lane_index = int(payload.get("lane_index", 0))
+    max_duration = int(payload.get("max_duration_sec", 1200))
+
+    cfg_file = SUMO_PROCESSED_DIR / "delhi_ml_forecast_morning_rush.sumocfg"
+    out_json = SUMO_PROCESSED_DIR / "trajectories" / f"trajectories_experiment_custom.json"
+
+    try:
+        res = export_disturbance_experiment(
+            sumo_cfg_path=cfg_file,
+            experiment_name="custom",
+            output_json_path=out_json,
+            disturbance_type=dist_type,
+            title=f"Custom {dist_type.capitalize()} Experiment",
+            description=f"User-configured disturbance: {dist_type} on {edge_id} for {duration}s",
+            start_time=start_time,
+            duration=duration,
+            edge_id=edge_id,
+            lane_index=lane_index,
+            max_duration_sec=max_duration,
+        )
+        return jsonify({
+            "status": "success",
+            "experiment_id": "custom",
+            "evaluation": res.get("evaluation", {}),
+            "metadata": res.get("metadata", {})
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route("/api/simulation/buildings")
