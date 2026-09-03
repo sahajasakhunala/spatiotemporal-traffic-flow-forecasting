@@ -112,15 +112,22 @@ COLORS = {
 # Helper: metrics
 # ---------------------------------------------------------------------------
 def calc_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-    mae = mean_absolute_error(y_true, y_pred)
+    mae = float(mean_absolute_error(y_true, y_pred))
     rmse = float(np.sqrt(mean_squared_error(y_true, y_pred)))
-    r2 = r2_score(y_true, y_pred)
+    r2 = float(r2_score(y_true, y_pred))
     bias = float(np.mean(y_pred - y_true))
+    mean_actual = float(np.mean(y_true))
+    # Weighted Absolute Percentage Error (WAPE) / Normalized MAE:
+    # WAPE = sum(|y - y_hat|) / sum(y) = MAE / mean(y)
+    # Robust against individual zero-flow records (~8.06% of observations)
+    wape_pct = round((mae / mean_actual * 100.0), 2) if mean_actual > 0 else 0.0
     return {
         "MAE": round(mae, 4),
         "RMSE": round(rmse, 4),
         "R2": round(r2, 4),
         "Mean_Bias": round(bias, 4),
+        "Mean_Actual": round(mean_actual, 2),
+        "WAPE_pct": wape_pct,
     }
 
 
@@ -350,6 +357,39 @@ def compute_breakdowns(df: pd.DataFrame) -> Dict[str, Any]:
             ),
         }
     report["by_frc"] = frc_report
+
+    # --- By Traffic Volume Quartile ---
+    # Bin by actual traffic volume into quartiles
+    # Q1: 0 - 25th percentile, Q2: 25 - 50th, Q3: 50 - 75th, Q4: 75 - 100th
+    q25 = float(np.percentile(y_actual, 25))
+    q50 = float(np.percentile(y_actual, 50))
+    q75 = float(np.percentile(y_actual, 75))
+    max_val = float(np.max(y_actual))
+
+    quartile_bins = [
+        ("Q1_Low_Volume", (y_actual <= q25), f"0 to {q25:.0f}"),
+        ("Q2_Medium_Low", (y_actual > q25) & (y_actual <= q50), f"{q25+1:.0f} to {q50:.0f}"),
+        ("Q3_Medium_High", (y_actual > q50) & (y_actual <= q75), f"{q50+1:.0f} to {q75:.0f}"),
+        ("Q4_High_Volume", (y_actual > q75), f">{q75:.0f} (max {max_val:.0f})"),
+    ]
+
+    vol_report = {}
+    for q_name, mask, range_str in quartile_bins:
+        if mask.sum() == 0:
+            continue
+        vol_report[q_name] = {
+            "flow_range": range_str,
+            "n": int(mask.sum()),
+            "random_forest": calc_metrics(
+                df.loc[mask, "actual_probe_count"].values,
+                df.loc[mask, "rf_predicted"].values,
+            ),
+            "naive_lag1": calc_metrics(
+                df.loc[mask, "actual_probe_count"].values,
+                df.loc[mask, "lag1_predicted"].values,
+            ),
+        }
+    report["by_volume_quartile"] = vol_report
 
     # --- By Day ---
     daily = {}
@@ -665,6 +705,92 @@ def generate_visualizations(df: pd.DataFrame, report: Dict[str, Any],
                 dpi=PLOT_DPI, bbox_inches="tight")
     plt.close()
 
+    # ---- 8. Relative Error (WAPE) Multi-Panel Analysis ----
+    print("  Generating simulation_relative_error_analysis.png...")
+    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
+
+    # Panel 1: WAPE by FRC
+    frc_data = report["by_frc"]
+    frc_keys = sorted(frc_data.keys())
+    frc_short_labels = [f"FRC {k.split('_')[1]}" for k in frc_keys]
+    rf_wape_f = [frc_data[k]["random_forest"]["WAPE_pct"] for k in frc_keys]
+    lag1_wape_f = [frc_data[k]["naive_lag1"]["WAPE_pct"] for k in frc_keys]
+
+    x = np.arange(len(frc_keys))
+    w = 0.35
+    axes[0, 0].bar(x - w / 2, rf_wape_f, w, label="Random Forest", color=COLORS["rf"])
+    axes[0, 0].bar(x + w / 2, lag1_wape_f, w, label="Naive Lag-1", color=COLORS["lag1"])
+    axes[0, 0].set_title("Relative Error (WAPE %) by Road Classification", fontweight="bold")
+    axes[0, 0].set_xlabel("Functional Road Class")
+    axes[0, 0].set_ylabel("WAPE (%) = MAE / Mean Flow")
+    axes[0, 0].set_xticks(x)
+    axes[0, 0].set_xticklabels(frc_short_labels)
+    axes[0, 0].legend()
+    for bar_group in [axes[0, 0].containers[0], axes[0, 0].containers[1]]:
+        axes[0, 0].bar_label(bar_group, fmt="%.1f%%", padding=3, fontsize=8)
+
+    # Panel 2: WAPE by Volume Quartile
+    vol_data = report["by_volume_quartile"]
+    vol_keys = list(vol_data.keys())
+    vol_labels = [k.replace("_", " ") for k in vol_keys]
+    rf_wape_v = [vol_data[k]["random_forest"]["WAPE_pct"] for k in vol_keys]
+    lag1_wape_v = [vol_data[k]["naive_lag1"]["WAPE_pct"] for k in vol_keys]
+
+    x_v = np.arange(len(vol_keys))
+    axes[0, 1].bar(x_v - w / 2, rf_wape_v, w, label="Random Forest", color=COLORS["rf"])
+    axes[0, 1].bar(x_v + w / 2, lag1_wape_v, w, label="Naive Lag-1", color=COLORS["lag1"])
+    axes[0, 1].set_title("Relative Error (WAPE %) by Traffic Volume Quartile", fontweight="bold")
+    axes[0, 1].set_xlabel("Volume Quartile")
+    axes[0, 1].set_ylabel("WAPE (%) = MAE / Mean Flow")
+    axes[0, 1].set_xticks(x_v)
+    axes[0, 1].set_xticklabels(vol_labels, rotation=15)
+    axes[0, 1].legend()
+    for bar_group in [axes[0, 1].containers[0], axes[0, 1].containers[1]]:
+        axes[0, 1].bar_label(bar_group, fmt="%.1f%%", padding=3, fontsize=8)
+
+    # Panel 3: Absolute MAE vs Relative WAPE across Quartiles
+    rf_mae_v = [vol_data[k]["random_forest"]["MAE"] for k in vol_keys]
+    mean_flow_v = [vol_data[k]["random_forest"]["Mean_Actual"] for k in vol_keys]
+
+    ax_left = axes[1, 0]
+    ax_right = ax_left.twinx()
+    l1 = ax_left.plot(x_v, rf_mae_v, color="#D32F2F", marker="o", linewidth=2.5, label="Absolute MAE (Left)")
+    l2 = ax_left.plot(x_v, mean_flow_v, color="#388E3C", marker="s", linewidth=2.0, linestyle="--", label="Mean Flow (Left)")
+    l3 = ax_right.plot(x_v, rf_wape_v, color="#1976D2", marker="^", linewidth=2.5, linestyle="-.", label="Relative WAPE % (Right)")
+    ax_left.set_title("Scale Contrast: Absolute Error vs Relative Error across Quartiles", fontweight="bold")
+    ax_left.set_xlabel("Volume Quartile")
+    ax_left.set_ylabel("Flow Units (MAE & Mean Flow)")
+    ax_right.set_ylabel("Relative Error (WAPE %)")
+    ax_left.set_xticks(x_v)
+    ax_left.set_xticklabels(vol_labels, rotation=15)
+    # Combine legends
+    lines = l1 + l2 + l3
+    labels = [l.get_label() for l in lines]
+    ax_left.legend(lines, labels, loc="upper left", fontsize=9)
+
+    # Panel 4: WAPE by Hour of Day
+    hourly_data = report["by_hour"]
+    hours = sorted([int(h) for h in hourly_data.keys()])
+    rf_wape_h = [hourly_data[str(h)]["random_forest"]["WAPE_pct"] for h in hours]
+    lag1_wape_h = [hourly_data[str(h)]["naive_lag1"]["WAPE_pct"] for h in hours]
+
+    x_h = np.arange(len(hours))
+    axes[1, 1].plot(x_h, rf_wape_h, color=COLORS["rf"], marker="o", linewidth=2.0, label="Random Forest")
+    axes[1, 1].plot(x_h, lag1_wape_h, color=COLORS["lag1"], marker="s", linewidth=1.8, linestyle="--", label="Naive Lag-1")
+    axes[1, 1].set_title("Relative Error (WAPE %) by Hour of Day", fontweight="bold")
+    axes[1, 1].set_xlabel("Hour of Day")
+    axes[1, 1].set_ylabel("WAPE (%)")
+    axes[1, 1].set_xticks(x_h)
+    axes[1, 1].set_xticklabels([f"{h:02d}" for h in hours])
+    axes[1, 1].legend()
+
+    fig.suptitle("Scale-Normalized Relative Error Analysis (Zero-Flow Robust WAPE)",
+                 fontsize=14, fontweight="bold", y=1.01)
+    plt.tight_layout()
+    plt.savefig(viz_dir / "simulation_relative_error_analysis.png",
+                dpi=PLOT_DPI, bbox_inches="tight")
+    plt.close()
+
 
 # ---------------------------------------------------------------------------
 # 5. Save results
@@ -731,6 +857,7 @@ def print_summary(report: Dict[str, Any]) -> None:
 
     print(f"\n  Test Period:    {TEST_START_DATE} to {TEST_END_DATE}")
     print(f"  Total Forecasts: {ov['n_forecasts']:,}")
+    print(f"  Mean Actual Flow: {rf['Mean_Actual']:.2f}")
 
     print(f"\n  {'Metric':<20} {'Random Forest':>15} {'Naive Lag-1':>15}")
     print(f"  {'-'*20} {'-'*15} {'-'*15}")
@@ -738,6 +865,7 @@ def print_summary(report: Dict[str, Any]) -> None:
     print(f"  {'RMSE':<20} {rf['RMSE']:>15.4f} {lag1['RMSE']:>15.4f}")
     print(f"  {'R-squared':<20} {rf['R2']:>15.4f} {lag1['R2']:>15.4f}")
     print(f"  {'Mean Bias':<20} {rf['Mean_Bias']:>15.4f} {lag1['Mean_Bias']:>15.4f}")
+    print(f"  {'WAPE (Relative MAE)':<20} {rf['WAPE_pct']:>14.2f}% {lag1['WAPE_pct']:>14.2f}%")
     print(f"\n  RF MAE improvement over Lag-1: {ov['mae_improvement_vs_lag1_pct']}%")
 
     # Original benchmark comparison
@@ -750,29 +878,39 @@ def print_summary(report: Dict[str, Any]) -> None:
     else:
         print(f"  Status: Metrics differ by {diff:.4f} -- investigation needed")
 
-    # Hourly
-    print(f"\n  --- MAE by Hour ---")
-    hourly = report["by_hour"]
-    for h in sorted(hourly.keys(), key=int):
-        rf_h = hourly[h]["random_forest"]["MAE"]
-        lag1_h = hourly[h]["naive_lag1"]["MAE"]
-        print(f"    {int(h):02d}:00  RF: {rf_h:>8.2f}  Lag-1: {lag1_h:>8.2f}")
-
-    # Period
-    print(f"\n  --- MAE by Traffic Period ---")
-    for period, data in report["by_period"].items():
-        rf_p = data["random_forest"]["MAE"]
-        lag1_p = data["naive_lag1"]["MAE"]
-        label = period.replace("_", " ").title()
-        print(f"    {label:<20} RF: {rf_p:>8.2f}  Lag-1: {lag1_p:>8.2f}  "
-              f"(n={data['n']:,})")
+    # Volume Quartiles Breakdown (Relative Error Analysis)
+    print(f"\n  --- Relative Error (WAPE) by Traffic Volume Quartile ---")
+    print(f"  {'Quartile':<18} {'Flow Range':<16} {'Mean Flow':>10} {'RF MAE':>10} {'Lag1 MAE':>10} {'RF WAPE':>10} {'Lag1 WAPE':>11}")
+    print(f"  {'-'*18} {'-'*16} {'-'*10} {'-'*10} {'-'*10} {'-'*10} {'-'*11}")
+    for q_name, data in report["by_volume_quartile"].items():
+        q_rf = data["random_forest"]
+        q_lag = data["naive_lag1"]
+        print(f"  {q_name:<18} {data['flow_range']:<16} {q_rf['Mean_Actual']:>10.1f} {q_rf['MAE']:>10.2f} {q_lag['MAE']:>10.2f} {q_rf['WAPE_pct']:>9.1f}% {q_lag['WAPE_pct']:>10.1f}%")
 
     # FRC
-    print(f"\n  --- MAE by Functional Road Class ---")
+    print(f"\n  --- MAE & Relative WAPE by Functional Road Class ---")
+    print(f"  {'Road Class':<30} {'Mean Flow':>10} {'RF MAE':>10} {'Lag1 MAE':>10} {'RF WAPE':>10} {'Lag1 WAPE':>11}")
+    print(f"  {'-'*30} {'-'*10} {'-'*10} {'-'*10} {'-'*10} {'-'*11}")
     for frc_key, data in report["by_frc"].items():
-        rf_f = data["random_forest"]["MAE"]
-        lag1_f = data["naive_lag1"]["MAE"]
-        print(f"    {data['label']:<30} RF: {rf_f:>8.2f}  Lag-1: {lag1_f:>8.2f}")
+        rf_f = data["random_forest"]
+        lag1_f = data["naive_lag1"]
+        print(f"  {data['label']:<30} {rf_f['Mean_Actual']:>10.1f} {rf_f['MAE']:>10.2f} {lag1_f['MAE']:>10.2f} {rf_f['WAPE_pct']:>9.1f}% {lag1_f['WAPE_pct']:>10.1f}%")
+
+    # Hourly
+    print(f"\n  --- Hourly MAE & Relative WAPE ---")
+    hourly = report["by_hour"]
+    for h in sorted(hourly.keys(), key=int):
+        rf_h = hourly[h]["random_forest"]
+        lag1_h = hourly[h]["naive_lag1"]
+        print(f"    {int(h):02d}:00  Mean Flow: {rf_h['Mean_Actual']:>6.1f}  RF MAE: {rf_h['MAE']:>6.2f} ({rf_h['WAPE_pct']:>5.1f}%)  Lag-1: {lag1_h['MAE']:>6.2f} ({lag1_h['WAPE_pct']:>5.1f}%)")
+
+    # Period
+    print(f"\n  --- MAE & Relative WAPE by Traffic Period ---")
+    for period, data in report["by_period"].items():
+        rf_p = data["random_forest"]
+        lag1_p = data["naive_lag1"]
+        label = period.replace("_", " ").title()
+        print(f"    {label:<20} Mean Flow: {rf_p['Mean_Actual']:>6.1f}  RF MAE: {rf_p['MAE']:>6.2f} ({rf_p['WAPE_pct']:>5.1f}%)  Lag-1: {lag1_p['MAE']:>6.2f} ({lag1_p['WAPE_pct']:>5.1f}%)")
 
     # Daily
     print(f"\n  --- MAE by Test Date ---")
@@ -784,9 +922,10 @@ def print_summary(report: Dict[str, Any]) -> None:
     # Worst segments
     print(f"\n  --- Top 5 Segments with Highest Forecasting Error ---")
     for seg in report["segment_analysis"]["worst_10_segments"][:5]:
+        rel_err = (seg['mae'] / seg['mean_actual'] * 100) if seg['mean_actual'] > 0 else 0
         print(f"    Segment {seg['segment_id']}: "
               f"{seg['street_name']} (FRC {int(seg['frc'])}) "
-              f"MAE={seg['mae']:.1f}, Mean Flow={seg['mean_actual']:.1f}")
+              f"MAE={seg['mae']:.1f}, Mean Flow={seg['mean_actual']:.1f}, Relative Error={rel_err:.1f}%")
 
     print("\n" + "=" * 70)
 
@@ -827,6 +966,10 @@ def main():
         "n_features": len(FEATURE_COLUMNS),
         "feature_columns": FEATURE_COLUMNS,
         "baseline": "Naive Lag-1 Persistence",
+        "relative_metric_definition": (
+            "WAPE (%) = (MAE / Mean_Actual) * 100 = sum(|y - y_hat|) / sum(y) * 100. "
+            "Robust scale-normalized metric that handles zero-traffic observations safely."
+        ),
         "note": (
             "This is a one-step-ahead rolling-origin backtest. At each "
             "forecast origin time t, only information available through t is "
@@ -852,3 +995,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
