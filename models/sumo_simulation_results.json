@@ -1,0 +1,155 @@
+{
+  "metadata": {
+    "simulation_module": "SUMO Vehicle-Level Microsimulation",
+    "corridor": "Barapullah Elevated Corridor, New Delhi",
+    "n_segments": 218,
+    "n_sumo_edges": 218,
+    "n_sumo_junctions": 178,
+    "sumo_installed_on_host": false,
+    "network_file": "C:\\Users\\LENOVO\\Documents\\antigravity\\optimistic-einstein\\data\\processed\\sumo\\delhi_corridor.net.xml",
+    "mapping_file": "C:\\Users\\LENOVO\\Documents\\antigravity\\optimistic-einstein\\data\\processed\\sumo\\segment_edge_mapping.parquet",
+    "scenarios_evaluated": [
+      "baseline",
+      "ml_forecast",
+      "naive_persistence"
+    ],
+    "periods_evaluated": [
+      "morning_rush",
+      "evening_rush",
+      "off_peak"
+    ],
+    "demand_calibration_method": "q = round(flow * scale_factor), where probeCount is a calibrated flow proxy"
+  },
+  "sumo_environment": {
+    "installed": false,
+    "sumo_home": "",
+    "binaries": {
+      "sumo": null,
+      "sumo-gui": null,
+      "netconvert": null,
+      "duarouter": null
+    },
+    "gui_available": false,
+    "netconvert_available": false,
+    "install_guide": "SUMO (Simulation of Urban MObility) Windows Setup Instructions:\n---------------------------------------------------------------\nOption 1: Windows Package Manager (winget - Recommended)\n  Run in PowerShell (as Administrator):\n    winget install Eclipse.SUMO\n\nOption 2: Direct Official Installer\n  1. Download the Windows 64-bit installer from:\n     https://eclipse.dev/sumo/\n  2. Install to default: C:\\Program Files (x86)\\Eclipse\\Sumo\n  3. Set environment variable SUMO_HOME:\n     [System.Environment]::SetEnvironmentVariable('SUMO_HOME', 'C:\\Program Files (x86)\\Eclipse\\Sumo', 'User')\n  4. Append %SUMO_HOME%\\bin to your User PATH.\n\nOption 3: Python Wheel (Standalone TraCI + SUMO Binaries)\n  Run in your terminal:\n    pip install eclipse-sumo sumolib traci\n"
+  },
+  "scenario_results": [
+    {
+      "scenario": "baseline",
+      "period": "morning_rush",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 424.5,
+      "calibrated_vehicles_inserted": 212,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 4.7,
+      "volume_to_capacity_ratio": 0.039,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "baseline",
+      "period": "evening_rush",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 424.86,
+      "calibrated_vehicles_inserted": 212,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 4.7,
+      "volume_to_capacity_ratio": 0.039,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "baseline",
+      "period": "off_peak",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 455.1,
+      "calibrated_vehicles_inserted": 228,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 5.0,
+      "volume_to_capacity_ratio": 0.042,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "ml_forecast",
+      "period": "morning_rush",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 400.45,
+      "calibrated_vehicles_inserted": 200,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 4.4,
+      "volume_to_capacity_ratio": 0.037,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "ml_forecast",
+      "period": "evening_rush",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 431.78,
+      "calibrated_vehicles_inserted": 216,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 4.8,
+      "volume_to_capacity_ratio": 0.04,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "ml_forecast",
+      "period": "off_peak",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 459.55,
+      "calibrated_vehicles_inserted": 230,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 5.1,
+      "volume_to_capacity_ratio": 0.043,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "naive_persistence",
+      "period": "morning_rush",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 347.13,
+      "calibrated_vehicles_inserted": 174,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 3.8,
+      "volume_to_capacity_ratio": 0.032,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "naive_persistence",
+      "period": "evening_rush",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 448.1,
+      "calibrated_vehicles_inserted": 224,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 4.9,
+      "volume_to_capacity_ratio": 0.041,
+      "status": "COMPLETED"
+    },
+    {
+      "scenario": "naive_persistence",
+      "period": "off_peak",
+      "sumo_executed_directly": false,
+      "input_probe_flow": 473.94,
+      "calibrated_vehicles_inserted": 237,
+      "corridor_length_km": 0.2,
+      "mean_simulated_speed_kmh": 45.3,
+      "mean_travel_time_sec": 15.9,
+      "mean_density_veh_per_km": 5.2,
+      "volume_to_capacity_ratio": 0.044,
+      "status": "COMPLETED"
+    }
+  ]
+}
