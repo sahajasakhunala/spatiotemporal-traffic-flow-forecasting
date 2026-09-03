@@ -1,0 +1,860 @@
+{
+  "overall": {
+    "n_forecasts": 2394048,
+    "random_forest": {
+      "MAE": 17.8112,
+      "RMSE": 36.2533,
+      "R2": 0.9683,
+      "Mean_Bias": -3.4509
+    },
+    "naive_lag1": {
+      "MAE": 26.4178,
+      "RMSE": 51.997,
+      "R2": 0.9349,
+      "Mean_Bias": -0.5292
+    },
+    "mae_improvement_vs_lag1_pct": 32.6
+  },
+  "by_hour": {
+    "0": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 9.9405,
+        "RMSE": 18.4206,
+        "R2": 0.9682,
+        "Mean_Bias": -0.2652
+      },
+      "naive_lag1": {
+        "MAE": 27.3132,
+        "RMSE": 47.3916,
+        "R2": 0.7892,
+        "Mean_Bias": 26.1889
+      }
+    },
+    "1": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 7.3646,
+        "RMSE": 15.031,
+        "R2": 0.9609,
+        "Mean_Bias": -0.293
+      },
+      "naive_lag1": {
+        "MAE": 21.1369,
+        "RMSE": 38.9827,
+        "R2": 0.7368,
+        "Mean_Bias": 20.2609
+      }
+    },
+    "2": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 6.3037,
+        "RMSE": 13.0791,
+        "R2": 0.94,
+        "Mean_Bias": 1.9196
+      },
+      "naive_lag1": {
+        "MAE": 16.7308,
+        "RMSE": 32.2254,
+        "R2": 0.6359,
+        "Mean_Bias": 15.8619
+      }
+    },
+    "3": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 5.697,
+        "RMSE": 12.7118,
+        "R2": 0.9471,
+        "Mean_Bias": -0.554
+      },
+      "naive_lag1": {
+        "MAE": 7.8716,
+        "RMSE": 16.5997,
+        "R2": 0.9098,
+        "Mean_Bias": 2.8644
+      }
+    },
+    "4": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 6.863,
+        "RMSE": 14.6082,
+        "R2": 0.9597,
+        "Mean_Bias": -0.4899
+      },
+      "naive_lag1": {
+        "MAE": 10.2875,
+        "RMSE": 24.7612,
+        "R2": 0.8843,
+        "Mean_Bias": -7.0444
+      }
+    },
+    "5": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 8.4178,
+        "RMSE": 18.2924,
+        "R2": 0.9619,
+        "Mean_Bias": -1.3284
+      },
+      "naive_lag1": {
+        "MAE": 14.6678,
+        "RMSE": 32.5863,
+        "R2": 0.879,
+        "Mean_Bias": -13.0758
+      }
+    },
+    "6": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 9.5821,
+        "RMSE": 19.1255,
+        "R2": 0.9707,
+        "Mean_Bias": -0.3271
+      },
+      "naive_lag1": {
+        "MAE": 18.5715,
+        "RMSE": 36.0787,
+        "R2": 0.8956,
+        "Mean_Bias": -15.3606
+      }
+    },
+    "7": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 18.2182,
+        "RMSE": 41.7092,
+        "R2": 0.9382,
+        "Mean_Bias": -7.4694
+      },
+      "naive_lag1": {
+        "MAE": 40.526,
+        "RMSE": 84.2898,
+        "R2": 0.7475,
+        "Mean_Bias": -36.6608
+      }
+    },
+    "8": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 26.2518,
+        "RMSE": 55.1669,
+        "R2": 0.9468,
+        "Mean_Bias": -12.6733
+      },
+      "naive_lag1": {
+        "MAE": 57.9093,
+        "RMSE": 106.9448,
+        "R2": 0.8002,
+        "Mean_Bias": -54.9748
+      }
+    },
+    "9": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 31.6628,
+        "RMSE": 59.0094,
+        "R2": 0.9466,
+        "Mean_Bias": -4.2021
+      },
+      "naive_lag1": {
+        "MAE": 43.4932,
+        "RMSE": 76.0237,
+        "R2": 0.9114,
+        "Mean_Bias": -26.3914
+      }
+    },
+    "10": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 25.9729,
+        "RMSE": 47.8946,
+        "R2": 0.9649,
+        "Mean_Bias": -11.3217
+      },
+      "naive_lag1": {
+        "MAE": 29.1933,
+        "RMSE": 50.8811,
+        "R2": 0.9604,
+        "Mean_Bias": -10.6232
+      }
+    },
+    "11": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 23.5747,
+        "RMSE": 44.8165,
+        "R2": 0.9654,
+        "Mean_Bias": -5.1658
+      },
+      "naive_lag1": {
+        "MAE": 30.6946,
+        "RMSE": 57.8258,
+        "R2": 0.9424,
+        "Mean_Bias": 4.5363
+      }
+    },
+    "12": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 20.2001,
+        "RMSE": 37.5862,
+        "R2": 0.9723,
+        "Mean_Bias": 2.1691
+      },
+      "naive_lag1": {
+        "MAE": 26.4458,
+        "RMSE": 48.6063,
+        "R2": 0.9537,
+        "Mean_Bias": 9.7856
+      }
+    },
+    "13": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 18.9313,
+        "RMSE": 35.6174,
+        "R2": 0.9751,
+        "Mean_Bias": -0.8798
+      },
+      "naive_lag1": {
+        "MAE": 21.7067,
+        "RMSE": 39.64,
+        "R2": 0.9691,
+        "Mean_Bias": 2.4997
+      }
+    },
+    "14": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 19.9575,
+        "RMSE": 35.7791,
+        "R2": 0.9744,
+        "Mean_Bias": -0.9399
+      },
+      "naive_lag1": {
+        "MAE": 22.6219,
+        "RMSE": 39.716,
+        "R2": 0.9685,
+        "Mean_Bias": -0.0032
+      }
+    },
+    "15": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 19.4411,
+        "RMSE": 34.8168,
+        "R2": 0.9774,
+        "Mean_Bias": -5.4778
+      },
+      "naive_lag1": {
+        "MAE": 21.1961,
+        "RMSE": 36.6759,
+        "R2": 0.9749,
+        "Mean_Bias": -5.834
+      }
+    },
+    "16": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 19.9976,
+        "RMSE": 34.4708,
+        "R2": 0.9791,
+        "Mean_Bias": -7.3841
+      },
+      "naive_lag1": {
+        "MAE": 21.9981,
+        "RMSE": 37.8184,
+        "R2": 0.9748,
+        "Mean_Bias": -7.081
+      }
+    },
+    "17": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 24.2439,
+        "RMSE": 44.6488,
+        "R2": 0.9637,
+        "Mean_Bias": -1.0225
+      },
+      "naive_lag1": {
+        "MAE": 26.8209,
+        "RMSE": 49.1347,
+        "R2": 0.9561,
+        "Mean_Bias": 1.4256
+      }
+    },
+    "18": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 25.2372,
+        "RMSE": 44.9959,
+        "R2": 0.9624,
+        "Mean_Bias": -2.5064
+      },
+      "naive_lag1": {
+        "MAE": 27.3983,
+        "RMSE": 48.1981,
+        "R2": 0.9569,
+        "Mean_Bias": 1.3828
+      }
+    },
+    "19": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 22.849,
+        "RMSE": 40.2389,
+        "R2": 0.9698,
+        "Mean_Bias": -4.5947
+      },
+      "naive_lag1": {
+        "MAE": 25.1113,
+        "RMSE": 43.3834,
+        "R2": 0.9649,
+        "Mean_Bias": 1.9605
+      }
+    },
+    "20": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 23.2032,
+        "RMSE": 41.8329,
+        "R2": 0.9677,
+        "Mean_Bias": -5.218
+      },
+      "naive_lag1": {
+        "MAE": 27.3106,
+        "RMSE": 47.4756,
+        "R2": 0.9585,
+        "Mean_Bias": 4.2083
+      }
+    },
+    "21": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 22.6149,
+        "RMSE": 41.1439,
+        "R2": 0.9651,
+        "Mean_Bias": -9.8876
+      },
+      "naive_lag1": {
+        "MAE": 31.1462,
+        "RMSE": 53.418,
+        "R2": 0.9411,
+        "Mean_Bias": 17.6817
+      }
+    },
+    "22": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 17.1247,
+        "RMSE": 32.8351,
+        "R2": 0.9694,
+        "Mean_Bias": -2.8382
+      },
+      "naive_lag1": {
+        "MAE": 33.5086,
+        "RMSE": 59.1458,
+        "R2": 0.9006,
+        "Mean_Bias": 28.0643
+      }
+    },
+    "23": {
+      "n": 99752,
+      "random_forest": {
+        "MAE": 13.8181,
+        "RMSE": 25.3736,
+        "R2": 0.9714,
+        "Mean_Bias": -2.0701
+      },
+      "naive_lag1": {
+        "MAE": 30.3667,
+        "RMSE": 55.3751,
+        "R2": 0.864,
+        "Mean_Bias": 27.6281
+      }
+    }
+  },
+  "by_period": {
+    "morning_rush": {
+      "hours": [
+        8,
+        9,
+        10
+      ],
+      "n": 299256,
+      "random_forest": {
+        "MAE": 27.9625,
+        "RMSE": 54.2199,
+        "R2": 0.9532,
+        "Mean_Bias": -9.399
+      },
+      "naive_lag1": {
+        "MAE": 43.5319,
+        "RMSE": 81.252,
+        "R2": 0.895,
+        "Mean_Bias": -30.6632
+      }
+    },
+    "evening_rush": {
+      "hours": [
+        17,
+        18,
+        19,
+        20
+      ],
+      "n": 399008,
+      "random_forest": {
+        "MAE": 23.8833,
+        "RMSE": 42.9747,
+        "R2": 0.9659,
+        "Mean_Bias": -3.3354
+      },
+      "naive_lag1": {
+        "MAE": 26.6603,
+        "RMSE": 47.0992,
+        "R2": 0.959,
+        "Mean_Bias": 2.2443
+      }
+    },
+    "off_peak": {
+      "hours": "all other hours",
+      "n": 1695784,
+      "random_forest": {
+        "MAE": 14.591,
+        "RMSE": 30.0358,
+        "R2": 0.973,
+        "Mean_Bias": -2.4283
+      },
+      "naive_lag1": {
+        "MAE": 23.3406,
+        "RMSE": 46.1517,
+        "R2": 0.9362,
+        "Mean_Bias": 4.136
+      }
+    }
+  },
+  "by_frc": {
+    "FRC_1": {
+      "label": "Motorway / Major Highway",
+      "n": 238080,
+      "random_forest": {
+        "MAE": 48.9352,
+        "RMSE": 77.1992,
+        "R2": 0.9534,
+        "Mean_Bias": -7.0062
+      },
+      "naive_lag1": {
+        "MAE": 76.2287,
+        "RMSE": 113.9189,
+        "R2": 0.8986,
+        "Mean_Bias": -1.5152
+      }
+    },
+    "FRC_2": {
+      "label": "Major Arterial",
+      "n": 462048,
+      "random_forest": {
+        "MAE": 25.6093,
+        "RMSE": 43.7257,
+        "R2": 0.954,
+        "Mean_Bias": -5.6704
+      },
+      "naive_lag1": {
+        "MAE": 37.7645,
+        "RMSE": 61.6804,
+        "R2": 0.9085,
+        "Mean_Bias": -0.9586
+      }
+    },
+    "FRC_3": {
+      "label": "Secondary Arterial",
+      "n": 439200,
+      "random_forest": {
+        "MAE": 18.7751,
+        "RMSE": 31.4656,
+        "R2": 0.9525,
+        "Mean_Bias": -3.7604
+      },
+      "naive_lag1": {
+        "MAE": 27.9717,
+        "RMSE": 45.1328,
+        "R2": 0.9024,
+        "Mean_Bias": -0.5479
+      }
+    },
+    "FRC_4": {
+      "label": "Collector Road",
+      "n": 588288,
+      "random_forest": {
+        "MAE": 9.8888,
+        "RMSE": 18.1731,
+        "R2": 0.9428,
+        "Mean_Bias": -2.3432
+      },
+      "naive_lag1": {
+        "MAE": 14.3486,
+        "RMSE": 25.198,
+        "R2": 0.89,
+        "Mean_Bias": -0.2527
+      }
+    },
+    "FRC_5": {
+      "label": "Local Connecting Road",
+      "n": 189024,
+      "random_forest": {
+        "MAE": 9.5274,
+        "RMSE": 19.417,
+        "R2": 0.9124,
+        "Mean_Bias": -1.4073
+      },
+      "naive_lag1": {
+        "MAE": 13.2996,
+        "RMSE": 26.3219,
+        "R2": 0.839,
+        "Mean_Bias": -0.1572
+      }
+    },
+    "FRC_6": {
+      "label": "Local Residential Street",
+      "n": 477408,
+      "random_forest": {
+        "MAE": 6.8979,
+        "RMSE": 17.3559,
+        "R2": 0.971,
+        "Mean_Bias": -1.4191
+      },
+      "naive_lag1": {
+        "MAE": 9.2326,
+        "RMSE": 21.7625,
+        "R2": 0.9544,
+        "Mean_Bias": -0.0927
+      }
+    }
+  },
+  "by_day": {
+    "2024-08-27": {
+      "n": 598512,
+      "random_forest": {
+        "MAE": 18.283,
+        "RMSE": 37.6349,
+        "R2": 0.9666,
+        "Mean_Bias": -4.6994
+      },
+      "naive_lag1": {
+        "MAE": 26.2789,
+        "RMSE": 52.506,
+        "R2": 0.9349,
+        "Mean_Bias": -0.8269
+      }
+    },
+    "2024-08-28": {
+      "n": 598512,
+      "random_forest": {
+        "MAE": 16.7644,
+        "RMSE": 33.842,
+        "R2": 0.9725,
+        "Mean_Bias": -0.2957
+      },
+      "naive_lag1": {
+        "MAE": 27.1079,
+        "RMSE": 53.4689,
+        "R2": 0.9313,
+        "Mean_Bias": -0.4278
+      }
+    },
+    "2024-08-29": {
+      "n": 598512,
+      "random_forest": {
+        "MAE": 17.1913,
+        "RMSE": 35.8112,
+        "R2": 0.9654,
+        "Mean_Bias": -1.8685
+      },
+      "naive_lag1": {
+        "MAE": 25.443,
+        "RMSE": 49.7359,
+        "R2": 0.9333,
+        "Mean_Bias": 0.339
+      }
+    },
+    "2024-08-30": {
+      "n": 598512,
+      "random_forest": {
+        "MAE": 19.006,
+        "RMSE": 37.5913,
+        "R2": 0.9685,
+        "Mean_Bias": -6.9398
+      },
+      "naive_lag1": {
+        "MAE": 26.8414,
+        "RMSE": 52.2044,
+        "R2": 0.9393,
+        "Mean_Bias": -1.2011
+      }
+    }
+  },
+  "segment_analysis": {
+    "total_segments_evaluated": 24938,
+    "best_10_segments": [
+      {
+        "segment_id": 13560344248523,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560236703992,
+        "street_name": "Chandragupta Marg",
+        "frc": 6,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560339059849,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560345215496,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560341467363,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560339055770,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560339058981,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560339059766,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": -13560145094400,
+        "street_name": "Aurobindo Marg",
+        "frc": 6,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      },
+      {
+        "segment_id": 13560339059844,
+        "street_name": "Unknown",
+        "frc": 2,
+        "n_forecasts": 96,
+        "mean_actual": 0.0,
+        "mean_predicted": 0.0,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mean_signed_error": 0.0
+      }
+    ],
+    "worst_10_segments": [
+      {
+        "segment_id": 13560232867476,
+        "street_name": "Gurgoan Road",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1285.6458333333333,
+        "mean_predicted": 1204.3416666666667,
+        "mae": 148.88125,
+        "rmse": 233.9213168995079,
+        "mean_signed_error": -81.30416666666667
+      },
+      {
+        "segment_id": 13560221481546,
+        "street_name": "Gurgoan Road",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1286.6145833333333,
+        "mean_predicted": 1206.1260416666667,
+        "mae": 148.48229166666667,
+        "rmse": 232.4659762291391,
+        "mean_signed_error": -80.48854166666666
+      },
+      {
+        "segment_id": 13560339048229,
+        "street_name": "Gurgoan Road",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1285.7604166666667,
+        "mean_predicted": 1207.8458333333333,
+        "mae": 148.12708333333333,
+        "rmse": 231.91558494777072,
+        "mean_signed_error": -77.91458333333334
+      },
+      {
+        "segment_id": 13560331074507,
+        "street_name": "Gurgoan Road",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1286.8854166666667,
+        "mean_predicted": 1206.26875,
+        "mae": 147.96666666666667,
+        "rmse": 234.14626571867424,
+        "mean_signed_error": -80.61666666666667
+      },
+      {
+        "segment_id": 13560339062318,
+        "street_name": "Gurgoan Road",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1285.8854166666667,
+        "mean_predicted": 1207.1614583333333,
+        "mae": 147.92395833333333,
+        "rmse": 232.1997472095236,
+        "mean_signed_error": -78.72395833333333
+      },
+      {
+        "segment_id": 13560334900480,
+        "street_name": "Gurgoan Road",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1285.71875,
+        "mean_predicted": 1205.7677083333333,
+        "mae": 147.75104166666668,
+        "rmse": 232.1479895723846,
+        "mean_signed_error": -79.95104166666667
+      },
+      {
+        "segment_id": 13560321846882,
+        "street_name": "Gurgoan Road",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1267.2395833333333,
+        "mean_predicted": 1194.0333333333333,
+        "mae": 140.10833333333332,
+        "rmse": 225.8129129759117,
+        "mean_signed_error": -73.20625
+      },
+      {
+        "segment_id": -13560135311098,
+        "street_name": "Swarna Jayanti Marg",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1508.25,
+        "mean_predicted": 1479.2385416666666,
+        "mae": 132.96770833333332,
+        "rmse": 185.3495085305057,
+        "mean_signed_error": -29.011458333333323
+      },
+      {
+        "segment_id": 13560128348526,
+        "street_name": "Swarna Jayanti Marg",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1519.3645833333333,
+        "mean_predicted": 1498.5145833333333,
+        "mae": 131.24375,
+        "rmse": 183.30140536377056,
+        "mean_signed_error": -20.849999999999998
+      },
+      {
+        "segment_id": -13560330997827,
+        "street_name": "Swarna Jayanti Marg",
+        "frc": 1,
+        "n_forecasts": 96,
+        "mean_actual": 1515.8645833333333,
+        "mean_predicted": 1489.0895833333334,
+        "mae": 130.95,
+        "rmse": 182.66504922489506,
+        "mean_signed_error": -26.77500000000001
+      }
+    ]
+  },
+  "metadata": {
+    "simulation_type": "one_step_ahead_rolling_origin_backtest",
+    "model": "Random Forest Regressor (pre-trained, models/random_forest.joblib)",
+    "test_period": "2024-08-27 to 2024-08-30",
+    "n_features": 24,
+    "feature_columns": [
+      "hour",
+      "day_of_week",
+      "day_of_month",
+      "is_weekend",
+      "is_morning_rush",
+      "is_evening_rush",
+      "is_rush_hour",
+      "is_festival",
+      "hour_sin",
+      "hour_cos",
+      "dow_sin",
+      "dow_cos",
+      "speed_limit",
+      "frc",
+      "distance",
+      "probe_count_lag_1",
+      "probe_count_lag_2",
+      "probe_count_lag_3",
+      "probe_count_lag_24",
+      "probe_count_roll_mean_3h",
+      "segment_mean_traffic",
+      "segment_std_traffic",
+      "segment_p90_traffic",
+      "segment_zero_freq"
+    ],
+    "baseline": "Naive Lag-1 Persistence",
+    "note": "This is a one-step-ahead rolling-origin backtest. At each forecast origin time t, only information available through t is used. Predictions are never fed back into future lag features. Every lag feature uses actual historical observations."
+  }
+}
