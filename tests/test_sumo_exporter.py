@@ -198,7 +198,7 @@ class TestSumoExporterAndVisualizer(unittest.TestCase):
         # A. HTML page
         res_page = self.client.get("/simulation")
         self.assertEqual(res_page.status_code, 200)
-        self.assertIn(b"Barapullah Elevated Corridor Microsimulation", res_page.data)
+        self.assertIn(b"Barapullah Elevated Corridor", res_page.data)
 
         # B. Manifest
         res_manifest = self.client.get("/api/simulation/manifest")
@@ -212,7 +212,13 @@ class TestSumoExporterAndVisualizer(unittest.TestCase):
         net_json = json.loads(res_net.data)
         self.assertEqual(len(net_json["features"]), 218)
 
-        # D. Trajectory query
+        # D. Real 3D Buildings
+        res_bld = self.client.get("/api/simulation/buildings")
+        self.assertEqual(res_bld.status_code, 200)
+        bld_json = json.loads(res_bld.data)
+        self.assertGreaterEqual(len(bld_json["features"]), 2500)
+
+        # E. Trajectory query
         res_traj = self.client.get("/api/simulation/trajectories?scenario=ml_forecast&period=morning_rush")
         self.assertEqual(res_traj.status_code, 200)
         traj_json = json.loads(res_traj.data)

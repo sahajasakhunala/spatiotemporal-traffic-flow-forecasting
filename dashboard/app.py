@@ -193,5 +193,15 @@ def get_simulation_trajectories():
     }), 404
 
 
+@app.route("/api/simulation/buildings")
+def get_simulation_buildings():
+    """Returns real 3D building footprints along the Barapullah corridor."""
+    bld_path = SUMO_PROCESSED_DIR / "barapullah_buildings.geojson"
+    if bld_path.exists():
+        with open(bld_path, "r", encoding="utf-8") as f:
+            return jsonify(json.load(f))
+    return jsonify({"type": "FeatureCollection", "features": []})
+
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
